@@ -5,7 +5,9 @@ import com.example.testeummilhao.ummilhao.repository.EventoRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.ModelAndView
 
 
@@ -36,6 +38,15 @@ class EventoController {
         val mv = ModelAndView("index")
         val eventos = er?.findAll()
         mv.addObject("eventos", eventos)
+        return mv
+    }
+
+    @RequestMapping("/{codigo}")
+    fun detalhesEvento (@PathVariable("codigo") codigo: Long):ModelAndView{
+        var evento: Evento? = er?.findByCodigo(codigo)
+        val mv = ModelAndView("detalhesEvento")
+        mv.addObject("evento", evento)
+        println("evento $evento")
         return mv
     }
 }
