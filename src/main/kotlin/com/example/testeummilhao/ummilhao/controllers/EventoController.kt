@@ -4,8 +4,8 @@ import com.example.testeummilhao.ummilhao.models.Evento
 import com.example.testeummilhao.ummilhao.repository.EventoRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.servlet.ModelAndView
 
 
@@ -15,14 +15,14 @@ class EventoController {
     @Autowired
     private var er: EventoRepository? = null
 
-    @RequestMapping(value = ["/cadastrarEvento"], method = [RequestMethod.GET])
+    @GetMapping("/cadastrarEvento")
     fun form():String{
         return "formEvento"
 
     }
 
 
-    @RequestMapping(value = ["/cadastrarEvento"], method = [RequestMethod.POST])
+    @PostMapping("/cadastrarEvento")
     fun form(evento:Evento):String{
 
         er?.save(evento)
@@ -31,7 +31,7 @@ class EventoController {
 
     }
 
-    @RequestMapping("/eventos")
+    @GetMapping("/eventos")
     fun listEventos():ModelAndView{
         val mv = ModelAndView("index")
         val eventos = er?.findAll()
