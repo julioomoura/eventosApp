@@ -50,7 +50,9 @@ class EventoController {
         var evento: Evento? = er.findByCodigo(codigo)
         val mv = ModelAndView("detalhesEvento")
         mv.addObject("evento", evento)
-        println("evento $evento")
+
+        var convidados = cr.findByEvento(evento)
+        mv.addObject("convidados", convidados)
         return mv
     }
 
