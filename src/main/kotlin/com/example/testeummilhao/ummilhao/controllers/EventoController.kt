@@ -4,22 +4,19 @@ import com.example.testeummilhao.ummilhao.models.Convidado
 import com.example.testeummilhao.ummilhao.models.Evento
 import com.example.testeummilhao.ummilhao.repository.ConvidadoRepository
 import com.example.testeummilhao.ummilhao.repository.EventoRepository
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
+import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.servlet.ModelAndView
+import org.springframework.web.servlet.mvc.support.RedirectAttributes
+import java.util.*
+import javax.validation.Valid
 
 
 @Controller
-class EventoController {
-
-    @Autowired
-    private lateinit var er: EventoRepository
-
-    @Autowired
-    private lateinit var cr: ConvidadoRepository
+class EventoController(val eventoRepository: EventoRepository, val convidadoRepository: ConvidadoRepository) {
 
     @GetMapping("/cadastrarEvento")
     fun form():String{
@@ -29,10 +26,14 @@ class EventoController {
 
 
     @PostMapping("/cadastrarEvento")
-    fun form(evento:Evento):String{
+    fun form(@Valid evento:Evento, result: BindingResult, attributes: RedirectAttributes):String{
+        if (result.hasErrors()){
+            attributes.addFlashAttribute("mensagem", "Verifique os campos!")
+            return "redirect:/cadastrarEvento"
+        }
 
-        er.save(evento)
-
+        eventoRepository.save(evento)
+        attributes.addFlashAttribute("mensagem", "Evento cadastrado com sucesso!")
         return "redirect:/cadastrarEvento"
 
     }
@@ -40,27 +41,36 @@ class EventoController {
     @GetMapping("/eventos")
     fun listEventos():ModelAndView{
         val mv = ModelAndView("index")
-        val eventos = er.findAll()
+        val eventos = eventoRepository.findAll()
         mv.addObject("eventos", eventos)
         return mv
     }
 
     @GetMapping("/{codigo}")
     fun detalhesEvento (@PathVariable("codigo") codigo: Long):ModelAndView{
-        var evento: Evento? = er.findByCodigo(codigo)
+        var evento: Optional<Evento> = eventoRepository.findById(codigo)
         val mv = ModelAndView("detalhesEvento")
-        mv.addObject("evento", evento)
+        evento.ifPresent { value ->
+            mv.addObject("evento", value)
 
-        var convidados = cr.findByEvento(evento)
-        mv.addObject("convidados", convidados)
+            var convidados = convidadoRepository.findByEvento(value)
+            mv.addObject("convidados", convidados)
+        }
         return mv
     }
 
     @PostMapping("/{codigo}")
-    fun detalhesEventoPost(@PathVariable("codigo") codigo: Long, convidado: Convidado):String{
-        var ev : Evento = er.findByCodigo(codigo)
-        convidado.evento = ev
-        cr.save(convidado)
+    fun detalhesEventoPost(@PathVariable("codigo") codigo: Long, @Valid convidado: Convidado, result: BindingResult, attributes:RedirectAttributes):String{
+        if (result.hasErrors()){
+            attributes.addFlashAttribute("mensagem", "Verifique os campos!")
+            return "redirect:/{codigo}"
+        }
+        var ev : Optional<Evento> = eventoRepository.findById(codigo)
+        ev.ifPresent {
+            convidado.evento = it
+            convidadoRepository.save(convidado)
+            attributes.addFlashAttribute("mensagem", "Convidado adicionado com sucesso!")
+        }
         return "redirect:/{codigo}"
     }
 }
