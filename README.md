@@ -1,1 +1,1 @@
-Repositório para versionar meus estudo em Spring Boot e Kotlin
+Repositório para versionar meus estudos em Spring Boot e Kotlin
