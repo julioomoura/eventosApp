@@ -19,10 +19,7 @@ import javax.validation.Valid
 class EventoController(val eventoRepository: EventoRepository, val convidadoRepository: ConvidadoRepository) {
 
     @GetMapping("/cadastrarEvento")
-    fun form():String{
-        return "formEvento"
-
-    }
+    fun form() = "formEvento"
 
 
     @PostMapping("/cadastrarEvento")
