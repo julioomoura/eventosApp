@@ -56,6 +56,15 @@ class EventoController(val eventoRepository: EventoRepository, val convidadoRepo
         return mv
     }
 
+    @GetMapping("/deletarEvento")
+    fun deletarEvento(codigo:Long):String{
+        val evento : Optional<Evento> = eventoRepository.findById(codigo)
+        evento.ifPresent{
+            eventoRepository.delete(it)
+        }
+        return "redirect:/eventos"
+    }
+
     @PostMapping("/{codigo}")
     fun detalhesEventoPost(@PathVariable("codigo") codigo: Long, @Valid convidado: Convidado, result: BindingResult, attributes:RedirectAttributes):String{
         if (result.hasErrors()){
@@ -69,5 +78,16 @@ class EventoController(val eventoRepository: EventoRepository, val convidadoRepo
             attributes.addFlashAttribute("mensagem", "Convidado adicionado com sucesso!")
         }
         return "redirect:/{codigo}"
+    }
+
+    @GetMapping("/deletarConvidado")
+    fun deletarConvidado(rg:String):String{
+        val convidado:Convidado = convidadoRepository.findByRg(rg)
+        convidadoRepository.delete(convidado)
+
+        val evento: Evento? = convidado.evento
+        val codigo = evento?.codigo.toString()
+
+        return "redirect:/$codigo"
     }
 }
