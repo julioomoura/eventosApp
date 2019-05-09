@@ -82,12 +82,12 @@ class EventoController(val eventoRepository: EventoRepository, val convidadoRepo
 
     @GetMapping("/deletarConvidado")
     fun deletarConvidado(rg:String):String{
-        val convidado:Convidado = convidadoRepository.findByRg(rg)
-        convidadoRepository.delete(convidado)
-
-        val evento: Evento? = convidado.evento
+        val convidado: Optional<Convidado> = convidadoRepository.findById(rg)
+        convidado.ifPresent {conv ->
+            convidadoRepository.delete(conv)
+        }
+        val evento: Evento? = convidado.get().evento
         val codigo = evento?.codigo.toString()
-
         return "redirect:/$codigo"
     }
 }
